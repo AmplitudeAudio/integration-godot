@@ -1,0 +1,10 @@
+{
+    "C_Cpp.default.includePath": [
+        "${default}",
+        "${workspaceRoot}/native/godot-cpp/include",
+        "${workspaceRoot}/native/godot-cpp/gen/include",
+        "${workspaceRoot}/native/godot-cpp/gdextension",
+        "${workspaceRoot}/native/src",
+        "${env:AM_SDK_PATH}/include",
+    ],
+}

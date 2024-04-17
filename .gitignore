@@ -1,0 +1,5 @@
+demo/.godot
+native/lib
+
+*.obj
+.sconsign.dblite

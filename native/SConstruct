@@ -1,0 +1,190 @@
+#!/usr/bin/env python
+import os
+import sys
+
+env = SConscript("godot-cpp/SConstruct")
+env.Tool('compilation_db')
+env.CompilationDatabase()
+
+opts = Variables([], ARGUMENTS)
+opts.Add(
+    PathVariable(
+        "target_path",
+        "The path where the lib is installed.",
+        "lib",
+        PathVariable.PathIsDirCreate,
+    )
+)
+opts.Add(
+    PathVariable(
+        "am_sdk_path",
+        "The Amplitude Audio SDK path",
+        os.environ['AM_SDK_PATH'],
+        PathVariable.PathAccept
+    )
+)
+opts.Update(env)
+
+# Local dependency paths, adapt them to your setup
+godot_headers_path = "godot-cpp/gdextension/"
+cpp_bindings_path = "godot-cpp/"
+
+# Amplitude dependency paths
+am_sdk_headers_path = env["am_sdk_path"] + "/include/"
+am_sdk_libs_path = ""
+am_sdk_library = "Amplitude"
+
+if env["target"] in ("template_debug"):
+    am_sdk_library += "_d"
+
+if env["platform"] == "windows":
+    am_sdk_libs_path = env["am_sdk_path"] + "/lib/x64-windows/shared/"
+else:
+    NotImplementedError()
+
+print("Amplitude Audio SDK headers path: " + am_sdk_headers_path)
+print("Amplitude Audio SDK libs path: " + am_sdk_libs_path)
+print("Amplitude Audio SDK library: " + am_sdk_library)
+
+# Build settings
+if env["platform"] == "windows":
+    env["target_path"] += "/win64/"
+    if env["target"] in ("template_debug"):
+        env["target_path"] += "debug/"
+        env.Append(CPPDEFINES=["_DEBUG"])
+        env.Append(LINKFLAGS=["-DEBUG"])
+        env.Append(CCFLAGS=["/MTd"])
+    else:
+        env["target_path"] += "release/"
+        env.Append(CPPDEFINES=["AMPLITUDE_NO_ASSERTS"])
+        env.Append(CPPDEFINES=["AM_NO_MEMORY_STATS"])
+        env.Append(CPPDEFINES=["NDEBUG"])
+
+    env.Append(
+        CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "UNICODE"]
+    )
+
+    env.Append(LINKFLAGS=["/INCREMENTAL:NO"])
+
+env.Append(
+    CPPPATH=[
+        ".",
+        godot_headers_path,
+        cpp_bindings_path + "include/",
+        cpp_bindings_path + "include/core/",
+        cpp_bindings_path + "include/gen/",
+    ]
+)
+env.Append(LIBPATH=[cpp_bindings_path + "bin/"])
+
+env.Append(CPPPATH=["src/", "src/scene/", "src/editor/", "src/editor/inspector_plugin/", "src/editor/event_gizmo/", "src/editor/export_plugin/"])
+
+sources = []
+sources.append(Glob("src/*.cpp"))
+sources.append(Glob("src/scene/*.cpp"))
+sources.append(Glob("src/editor/inspector_plugin/*.cpp"))
+sources.append(Glob("src/editor/am_editor_utils.cpp"))
+
+# Amplitude specific configuration
+env.Append(CPPPATH=[am_sdk_headers_path])
+env.Append(LIBPATH=[am_sdk_libs_path])
+env.Append(
+    LIBS=[
+        am_sdk_library,
+    ]
+)
+
+if env["platform"] == "linux":
+    env.Append(LIBS=["pthread", "dl"])
+
+if env["platform"] == "windows":
+    library = env.SharedLibrary(
+        target=env["target_path"]
+        + "libamplitude.{}.{}.dll".format(env["platform"], env["target"]),
+        source=sources,
+    )
+
+if env["platform"] == "macos":
+    library = env.SharedLibrary(
+        target=env["target_path"]
+        + "libam.{}.{}.framework/libam.{}.{}".format(
+            env["platform"], env["target"], env["platform"], env["target"]
+        ),
+        source=sources,
+    )
+
+if env["platform"] == "linux":
+    import shutil
+
+    library = env.SharedLibrary(
+        target=env["target_path"]
+        + "libam.{}.{}.so".format(env["platform"], env["target"]),
+        source=sources,
+    )
+
+if env["platform"] == "ios":
+    ios_lib_path = env[
+        "target_path"
+    ] + "libam.{}.{}.framework/libam.{}.{}".format(
+        env["platform"], env["target"], env["platform"], env["target"]
+    )
+
+    library = env.SharedLibrary(
+        target=ios_lib_path,
+        source=sources,
+    )
+
+    output_file = "Info.plist"
+    output_dir = env["target_path"] + "libam.{}.{}.framework".format(
+        env["platform"], env["target"]
+    )
+
+    env.Replace(LIB_NAME="libam.{}.{}".format(env["platform"], env["target"]))
+    env.Replace(MIN_IOS_VERSION=env["ios_min_version"])
+
+    def create_output_file(target, source, env):
+        # Create the output directory if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        lib_name = "libam.{}.{}".format(env["platform"], env["target"])
+
+        with open(os.path.join(output_dir, output_file), "w") as f:
+            xml_text = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>CFBundleShortVersionString</key>
+<string>1.0</string>
+<key>CFBundleIdentifier</key>
+<string>com.gdextension.framework.{}</string>
+<key>CFBundleName</key>
+<string>{}</string>
+<key>CFBundleExecutable</key>
+<string>{}</string>
+<key>DTPlatformName</key>
+<string>iphoneos</string>
+<key>CFBundleInfoDictionaryVersion</key>
+<string>6.0</string>
+<key>CFBundleVersion</key>
+<string>1</string>
+<key>CFBundlePackageType</key>
+<string>FMWK</string>
+<key>MinimumOSVersion</key>
+<string>{}</string>
+</dict>
+</plist>""".format(
+                lib_name, lib_name, lib_name, env["ios_min_version"]
+            )
+
+            unescaped_text = html.unescape(xml_text)
+            f.write(unescaped_text)
+        return None
+
+    target = os.path.join(output_dir, output_file)
+    create_output_file_action = Action(target, create_output_file)
+    AddPostAction(library, create_output_file)
+
+Default(library)
+
+Help(opts.GenerateHelpText(env))
