@@ -12,36 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMPLITUDE_GDEXTENSION_H
-#define AMPLITUDE_GDEXTENSION_H
+#ifndef AMPLITUDE_REGISTER_TYPES_H
+#define AMPLITUDE_REGISTER_TYPES_H
 
 #include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/core/object.hpp>
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/variant/utility_functions.hpp>
 
-#include <SparkyStudios/Audio/Amplitude/Amplitude.h>
+using namespace godot;
 
-namespace godot {
-class Amplitude : public Object {
-	GDCLASS(Amplitude, Object);
+void initialize_amplitude_module(ModuleInitializationLevel p_level);
+void uninitialize_amplitude_module(ModuleInitializationLevel p_level);
 
-protected:
-	static Amplitude *singleton;
-	static void _bind_methods();
-
-public:
-	static Amplitude *get_singleton();
-
-	Amplitude();
-	~Amplitude();
-
-	bool load_bank(const String &bank_path);
-	void unload_bank(const String &bank_path);
-
-	void init();
-	void shutdown();
-};
-} // namespace godot
-
-#endif // AMPLITUDE_GDEXTENSION_H
+#endif // AMPLITUDE_REGISTER_TYPES_H

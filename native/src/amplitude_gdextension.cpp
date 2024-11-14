@@ -36,6 +36,15 @@ Amplitude::~Amplitude() {
 	singleton = nullptr;
 }
 
+bool Amplitude::load_bank(const String &bank_path) {
+	UtilityFunctions::print("[Amplitude] Soundbank to load: " + bank_path);
+	return true;
+}
+
+void Amplitude::unload_bank(const String &bank_path) {
+	UtilityFunctions::print("[Amplitude] Soundbank to unload: " + bank_path);
+}
+
 void Amplitude::init() {
 	UtilityFunctions::print("[Amplitude] Amplitude Audio is initializing...");
 }

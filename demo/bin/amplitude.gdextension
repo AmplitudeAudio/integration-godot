@@ -1,0 +1,8 @@
+[configuration]
+
+entry_symbol = "amplitude_init"
+compatibility_minimum = "4.1"
+
+[libraries]
+
+windows.debug.x86_64 = "res://bin/lib/win64/debug/libamplitude.windows.template_debug.dll"

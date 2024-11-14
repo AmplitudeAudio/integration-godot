@@ -1,4 +1,5 @@
 demo/.godot
+demo/bin/lib/
 native/lib
 
 *.obj
