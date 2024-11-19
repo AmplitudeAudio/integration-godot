@@ -1,4 +1,4 @@
-[submodule "native/godot-cpp"]
-	path = native/godot-cpp
+[submodule "godot-cpp"]
+	path = addons/AmplitudeAudio/native/godot-cpp
 	url = https://github.com/godotengine/godot-cpp
 	branch = 4.3

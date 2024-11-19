@@ -1,0 +1,29 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Amplitude Audio Godot Integration Demo Project"
+config/features=PackedStringArray("4.3")
+run/max_fps=60
+
+[autoload]
+
+AmplitudeRuntimeManager="res://addons/AmplitudeAudio/scripts/amplitude_audio_runtime_manager.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AmplitudeAudio/plugin.cfg")
+
+[amplitude_audio]
+
+project_settings/path="res://addons/AmplitudeAudio/tests/amplitude_project"
+project_settings/init_bank="init.ambank"
+project_settings/engine_config="pc.config.amconfig"

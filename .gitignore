@@ -1,6 +1,5 @@
-demo/.godot
-demo/bin/lib/
-native/lib
+.godot
+addons/AmplitudeAudio/native/lib
 
 *.obj
 .sconsign.dblite
