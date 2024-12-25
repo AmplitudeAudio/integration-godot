@@ -1,0 +1,1 @@
+{"name": "amplitude_project", "default_configuration": "pc.config.amconfig", "sources_dir": "sources", "data_dir": "data", "build_dir": "build", "version": 1 }

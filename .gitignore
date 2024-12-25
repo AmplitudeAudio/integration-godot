@@ -3,3 +3,5 @@ addons/AmplitudeAudio/native/lib
 
 *.obj
 .sconsign.dblite
+
+addons/AmplitudeAudio/tests/amplitude_project/build
