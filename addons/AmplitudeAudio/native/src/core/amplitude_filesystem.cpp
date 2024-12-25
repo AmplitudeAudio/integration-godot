@@ -31,9 +31,7 @@ AmOsString AmplitudeFileSystem::ResolvePath(const AmOsString &path) const {
 	if (String(path.c_str()).is_absolute_path())
 		return path;
 
-	auto res = Join({ _base_path, path });
-	UtilityFunctions::print("Resolved path: ", res.c_str());
-	return res;
+	return Join({ _base_path, path });
 }
 
 bool AmplitudeFileSystem::Exists(const SparkyStudios::Audio::Amplitude::AmOsString &path) const {
@@ -58,6 +56,7 @@ std::shared_ptr<SparkyStudios::Audio::Amplitude::File> AmplitudeFileSystem::Open
 
 void AmplitudeFileSystem::StartOpenFileSystem() {
 	_directory = DirAccess::open(_base_path.c_str());
+
 	if (_directory.is_null())
 		UtilityFunctions::printerr("Failed to open filesystem at path: ", _base_path.c_str());
 }

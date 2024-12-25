@@ -48,6 +48,7 @@ private:
 	String _bank_path;
 	bool _load_on_ready = false;
 	bool _bank_loaded = false;
+	SparkyStudios::Audio::Amplitude::AmBankID _bank_id = SparkyStudios::Audio::Amplitude::kAmInvalidObjectId;
 };
 } //namespace godot
 

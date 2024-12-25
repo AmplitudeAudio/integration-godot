@@ -45,13 +45,34 @@ Amplitude::~Amplitude() {
 	singleton = nullptr;
 }
 
-bool Amplitude::load_bank(const String &bank_path) {
-	UtilityFunctions::print("[Amplitude] Soundbank to load: " + bank_path);
-	return true;
+bool Amplitude::load_bank(const String &bank_path, AmBankID &bank_id) {
+	if (!is_initialized())
+		return false;
+
+	amLogDebug("Loading soundbank: %s", bank_path.utf8().get_data());
+
+#ifdef AM_WCHAR_SUPPORTED
+	const bool success = amEngine->LoadSoundBank(bank_path.wide_string().get_data(), bank_id);
+#else
+	const bool success = amEngine->LoadSoundBank(bank_path.utf8().get_data(), bank_id);
+#endif
+
+#ifdef AM_DEBUG
+	if (success) {
+		amLogDebug("Loaded soundbank %s, with ID " AM_ID_CHAR_FMT, bank_path.utf8().get_data(), bank_id);
+	}
+#endif
+
+	return success;
 }
 
-void Amplitude::unload_bank(const String &bank_path) {
-	UtilityFunctions::print("[Amplitude] Soundbank to unload: " + bank_path);
+void Amplitude::unload_bank(AmBankID bank_id) {
+	if (!is_initialized())
+		return;
+
+	amLogDebug("Unloading soundbank with ID " AM_ID_CHAR_FMT, bank_id);
+
+	amEngine->UnloadSoundBank(bank_id);
 }
 
 bool Amplitude::is_initialized() {

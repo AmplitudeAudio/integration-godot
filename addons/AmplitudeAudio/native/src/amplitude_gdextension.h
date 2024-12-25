@@ -49,8 +49,8 @@ public:
 	Amplitude();
 	~Amplitude();
 
-	bool load_bank(const String &bank_path);
-	void unload_bank(const String &bank_path);
+	bool load_bank(const String &bank_path, SparkyStudios::Audio::Amplitude::AmBankID &bank_id);
+	void unload_bank(SparkyStudios::Audio::Amplitude::AmBankID bank_id);
 
 	bool is_initialized();
 

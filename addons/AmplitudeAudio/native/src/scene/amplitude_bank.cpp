@@ -1,4 +1,20 @@
+// Copyright (c) 2024-present Sparky Studios. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "amplitude_bank.h"
+
+#include "core/amplitude_settings.h"
 
 using namespace godot;
 using namespace SparkyStudios::Audio::Amplitude;
@@ -13,8 +29,8 @@ void AmplitudeBank::_enter_tree() {
 	if (settings == nullptr)
 		return;
 
-	if (settings->has_setting("audio/amplitude/init-bank")) {
-		_bank_path = settings->get_setting("audio/amplitude/init-bank");
+	if (settings->has_setting(AmplitudeSettings::PROJECT_SETTINGS_INIT_BANK)) {
+		_bank_path = settings->get_setting(AmplitudeSettings::PROJECT_SETTINGS_INIT_BANK);
 	}
 }
 
@@ -41,7 +57,7 @@ void AmplitudeBank::load_bank() {
 	if (_bank_path.is_empty())
 		return;
 
-	_bank_loaded = amplitude->load_bank(_bank_path);
+	_bank_loaded = amplitude->load_bank(_bank_path, _bank_id);
 }
 
 void AmplitudeBank::unload_bank() {
@@ -53,7 +69,7 @@ void AmplitudeBank::unload_bank() {
 	if (!_bank_loaded)
 		return;
 
-	amplitude->unload_bank(_bank_path);
+	amplitude->unload_bank(_bank_id);
 	_bank_loaded = false;
 }
 
