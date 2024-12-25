@@ -26,22 +26,31 @@
 using namespace godot;
 
 static Amplitude *s_am = nullptr;
+static AmplitudeSettings *s_settings = nullptr;
 
 void initialize_amplitude_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-		return;
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		ClassDB::register_class<Amplitude>();
+		s_am = memnew(Amplitude);
+		godot::Engine::get_singleton()->register_singleton("Amplitude", s_am);
 
-	ClassDB::register_class<Amplitude>();
-	s_am = memnew(Amplitude);
-	Engine::get_singleton()->register_singleton("Amplitude", s_am);
+		ClassDB::register_class<AmplitudeSettings>();
+		s_settings = memnew(AmplitudeSettings);
 
-	// TODO: Register nodes here
-	ClassDB::register_class<AmplitudeBank>();
+		// TODO: Register nodes here
+		ClassDB::register_class<AmplitudeBank>();
+	}
 }
 
 void uninitialize_amplitude_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-		return;
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		memdelete(s_settings);
+
+		if (godot::Engine::get_singleton()->has_singleton("Amplitude")) {
+			godot::Engine::get_singleton()->unregister_singleton("Amplitude");
+			memdelete(s_am);
+		}
+	}
 }
 
 extern "C" GDExtensionBool GDE_EXPORT amplitude_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
