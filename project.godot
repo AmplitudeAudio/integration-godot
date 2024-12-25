@@ -8,6 +8,13 @@
 
 config_version=5
 
+[amplitude_audio]
+
+project_settings/path="res://addons/AmplitudeAudio/tests/amplitude_project/build"
+project_settings/init_bank="init.ambank"
+project_settings/engine_config="pc.config.amconfig"
+user_settings/suspend_on_focus_lost=false
+
 [application]
 
 config/name="Amplitude Audio Godot Integration Demo Project"
@@ -21,9 +28,3 @@ AmplitudeRuntimeManager="res://addons/AmplitudeAudio/scripts/amplitude_audio_run
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/AmplitudeAudio/plugin.cfg")
-
-[amplitude_audio]
-
-project_settings/path="res://addons/AmplitudeAudio/tests/amplitude_project"
-project_settings/init_bank="init.ambank"
-project_settings/engine_config="pc.config.amconfig"

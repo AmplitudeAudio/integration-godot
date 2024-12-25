@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import shutil
 
 env = SConscript("godot-cpp/SConstruct")
 env.Tool('compilation_db')
@@ -56,9 +57,7 @@ if env["platform"] == "windows":
         env.Append(CCFLAGS=["/MTd"])
     else:
         env["target_path"] += "release/"
-        env.Append(CPPDEFINES=["AMPLITUDE_NO_ASSERTS"])
-        env.Append(CPPDEFINES=["AM_NO_MEMORY_STATS"])
-        env.Append(CPPDEFINES=["NDEBUG"])
+        env.Append(CPPDEFINES=["AMPLITUDE_NO_ASSERTS", "AM_NO_MEMORY_STATS", "NDEBUG"])
 
     env.Append(
         CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "UNICODE"]
@@ -77,10 +76,11 @@ env.Append(
 )
 env.Append(LIBPATH=[cpp_bindings_path + "bin/"])
 
-env.Append(CPPPATH=["src/", "src/scene/", "src/editor/", "src/editor/inspector_plugin/", "src/editor/event_gizmo/", "src/editor/export_plugin/"])
+env.Append(CPPPATH=["src/", "src/core/", "src/scene/", "src/editor/", "src/editor/inspector_plugin/", "src/editor/event_gizmo/", "src/editor/export_plugin/"])
 
 sources = []
 sources.append(Glob("src/*.cpp"))
+sources.append(Glob("src/core/*.cpp"))
 sources.append(Glob("src/scene/*.cpp"))
 sources.append(Glob("src/editor/inspector_plugin/*.cpp"))
 sources.append(Glob("src/editor/am_editor_utils.cpp"))
@@ -97,6 +97,16 @@ env.Append(
 if env["platform"] == "linux":
     env.Append(LIBS=["pthread", "dl"])
 
+
+def copy_sdk_lib(target, source, env):
+    output_dir = env["target_path"]
+    sdk_file_name = os.path.join(am_sdk_libs_path, am_sdk_library) + ".dll" if env["platform"] == "windows" else ".so" if env["platform"] == "linux" or "android" else ".dylib"
+    print("copying {} into {}".format(sdk_file_name, output_dir))
+    shutil.copy(sdk_file_name, output_dir)
+
+    return None
+
+
 if env["platform"] == "windows":
     library = env.SharedLibrary(
         target=env["target_path"]
@@ -104,10 +114,14 @@ if env["platform"] == "windows":
         source=sources,
     )
 
+    copy_sdk_lib_action = Action(env["target_path"], copy_sdk_lib)
+    AddPostAction(library, copy_sdk_lib)
+
+
 if env["platform"] == "macos":
     library = env.SharedLibrary(
         target=env["target_path"]
-        + "libam.{}.{}.framework/libam.{}.{}".format(
+        + "libamplitude.{}.{}.framework/libamplitude.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
@@ -118,14 +132,14 @@ if env["platform"] == "linux":
 
     library = env.SharedLibrary(
         target=env["target_path"]
-        + "libam.{}.{}.so".format(env["platform"], env["target"]),
+        + "libamplitude.{}.{}.so".format(env["platform"], env["target"]),
         source=sources,
     )
 
 if env["platform"] == "ios":
     ios_lib_path = env[
         "target_path"
-    ] + "libam.{}.{}.framework/libam.{}.{}".format(
+    ] + "libamplitude.{}.{}.framework/libamplitude.{}.{}".format(
         env["platform"], env["target"], env["platform"], env["target"]
     )
 
@@ -135,11 +149,11 @@ if env["platform"] == "ios":
     )
 
     output_file = "Info.plist"
-    output_dir = env["target_path"] + "libam.{}.{}.framework".format(
+    output_dir = env["target_path"] + "libamplitude.{}.{}.framework".format(
         env["platform"], env["target"]
     )
 
-    env.Replace(LIB_NAME="libam.{}.{}".format(env["platform"], env["target"]))
+    env.Replace(LIB_NAME="libamplitude.{}.{}".format(env["platform"], env["target"]))
     env.Replace(MIN_IOS_VERSION=env["ios_min_version"])
 
     def create_output_file(target, source, env):
@@ -147,7 +161,7 @@ if env["platform"] == "ios":
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        lib_name = "libam.{}.{}".format(env["platform"], env["target"])
+        lib_name = "libamplitude.{}.{}".format(env["platform"], env["target"])
 
         with open(os.path.join(output_dir, output_file), "w") as f:
             xml_text = """<?xml version="1.0" encoding="UTF-8"?>

@@ -1,10 +1,24 @@
 {
     "C_Cpp.default.includePath": [
         "${default}",
-        "${workspaceRoot}/native/godot-cpp/include",
-        "${workspaceRoot}/native/godot-cpp/gen/include",
-        "${workspaceRoot}/native/godot-cpp/gdextension",
-        "${workspaceRoot}/native/src",
+        "${workspaceRoot}/addons/AmplitudeAudio/native/godot-cpp/include",
+        "${workspaceRoot}/addons/AmplitudeAudio/native/godot-cpp/gen/include",
+        "${workspaceRoot}/addons/AmplitudeAudio/native/godot-cpp/gdextension",
+        "${workspaceRoot}/addons/AmplitudeAudio/native/src",
         "${env:AM_SDK_PATH}/include",
     ],
+    "cmake.ignoreCMakeListsMissing": true,
+    "godotTools.editorPath.godot4": "d:\\Programs\\Godot_v4.3-stable_win64.exe",
+    "files.associations": {
+        "*.material": "slang",
+        "*.slangm": "slang",
+        "*.godot": "properties",
+        "*.gdextension": "properties",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp",
+        "memory": "cpp",
+        "thread": "cpp"
+    },
 }
