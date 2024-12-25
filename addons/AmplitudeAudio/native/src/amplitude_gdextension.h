@@ -15,16 +15,29 @@
 #ifndef AMPLITUDE_GDEXTENSION_H
 #define AMPLITUDE_GDEXTENSION_H
 
+#include <godot_cpp/classes/os.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/thread.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/object.hpp>
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+
+#include "core/amplitude_filesystem.h"
+#include "core/amplitude_logger.h"
+#include "core/amplitude_settings.h"
 
 #include <SparkyStudios/Audio/Amplitude/Amplitude.h>
 
 namespace godot {
 class Amplitude : public Object {
 	GDCLASS(Amplitude, Object);
+
+private:
+	SparkyStudios::Audio::Amplitude::FileSystem *_file_system;
+	String _project_path;
+
+	AmplitudeLogger _logger;
 
 protected:
 	static Amplitude *singleton;
@@ -39,7 +52,10 @@ public:
 	bool load_bank(const String &bank_path);
 	void unload_bank(const String &bank_path);
 
+	bool is_initialized();
+
 	void init();
+	void advance_frame(double delta_time);
 	void shutdown();
 };
 } // namespace godot
