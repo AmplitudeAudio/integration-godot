@@ -1,1 +1,1 @@
-{"id":1,"name":"init","switch_containers":[],"collections":[],"sounds":[],"events":[],"attenuators":[],"switches":[],"rtpc":[],"effects":[]}
+{"id":1,"name":"init","switch_containers":[],"collections":[],"sounds":["AMBForst_Forest_ID_0100_BSB.amsound"],"events":["play_bg.amevent","stop_bg.amevent"],"attenuators":[],"switches":[],"rtpc":[],"effects":[]}
