@@ -16,10 +16,40 @@
 
 using namespace SparkyStudios::Audio::Amplitude;
 
+#define RETURN_IF_NOT_INITIALIZED(x)                                                        \
+	if (!is_initialized()) {                                                                \
+		ERR_PRINT("Amplitude engine is not initialized. Please call 'init' method first."); \
+		return x;                                                                           \
+	}
+
+#define RETURN_IF_NOT_INITIALIZED_VOID                                                      \
+	if (!is_initialized()) {                                                                \
+		ERR_PRINT("Amplitude engine is not initialized. Please call 'init' method first."); \
+		return;                                                                             \
+	}
+
+#define AM_ID(node) (node->get_index(true) + 1)
+
 namespace godot {
 Amplitude *Amplitude::singleton = nullptr;
 
 void Amplitude::_bind_methods() {
+	// ClassDB::bind_method(D_METHOD("load_bank", "bank_path", "bank_id"), &Amplitude::load_bank);
+	// ClassDB::bind_method(D_METHOD("unload_bank", "bank_id"), &Amplitude::unload_bank);
+
+	ClassDB::bind_method(D_METHOD("add_entity", "node"), &Amplitude::add_entity);
+	ClassDB::bind_method(D_METHOD("remove_entity", "node"), &Amplitude::remove_entity);
+	ClassDB::bind_method(D_METHOD("set_entity_transform_2d", "node", "transform"), &Amplitude::set_entity_transform_2d);
+	ClassDB::bind_method(D_METHOD("set_entity_transform_3d", "node", "transform"), &Amplitude::set_entity_transform_3d);
+
+	ClassDB::bind_method(D_METHOD("add_listener", "node"), &Amplitude::add_listener);
+	ClassDB::bind_method(D_METHOD("remove_listener", "node"), &Amplitude::remove_listener);
+	ClassDB::bind_method(D_METHOD("set_listener_transform_2d", "node", "transform"), &Amplitude::set_listener_transform_2d);
+	ClassDB::bind_method(D_METHOD("set_listener_transform_3d", "node", "transform"), &Amplitude::set_listener_transform_3d);
+	ClassDB::bind_method(D_METHOD("set_default_listener", "node"), &Amplitude::set_default_listener);
+
+	// TODO: ClassDB::bind_method(D_METHOD("trigger_event", "node", "event_name"), &Amplitude::trigger_event);
+
 	ClassDB::bind_method(D_METHOD("is_initialized"), &Amplitude::is_initialized);
 
 	ClassDB::bind_method(D_METHOD("init"), &Amplitude::init);
@@ -45,9 +75,8 @@ Amplitude::~Amplitude() {
 	singleton = nullptr;
 }
 
-bool Amplitude::load_bank(const String &bank_path, AmBankID &bank_id) {
-	if (!is_initialized())
-		return false;
+bool Amplitude::load_bank(const String &bank_path, uint64_t &bank_id) {
+	RETURN_IF_NOT_INITIALIZED(false);
 
 	amLogDebug("Loading soundbank: %s", bank_path.utf8().get_data());
 
@@ -63,16 +92,132 @@ bool Amplitude::load_bank(const String &bank_path, AmBankID &bank_id) {
 	}
 #endif
 
+	// Start loading sound files.
+	amEngine->StartLoadSoundFiles();
+	while (!amEngine->TryFinalizeLoadSoundFiles())
+		OS::get_singleton()->delay_msec(1);
+
 	return success;
 }
 
-void Amplitude::unload_bank(AmBankID bank_id) {
-	if (!is_initialized())
-		return;
+void Amplitude::unload_bank(uint64_t bank_id) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
 
 	amLogDebug("Unloading soundbank with ID " AM_ID_CHAR_FMT, bank_id);
 
 	amEngine->UnloadSoundBank(bank_id);
+}
+
+void Amplitude::add_entity(const Node *node) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	AM_UNUSED(amEngine->AddEntity(AM_ID(node)));
+}
+
+void Amplitude::remove_entity(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	amEngine->RemoveEntity(AM_ID(node));
+}
+
+SparkyStudios::Audio::Amplitude::Entity Amplitude::get_entity(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED({});
+
+	return amEngine->GetEntity(AM_ID(node));
+}
+
+void Amplitude::set_entity_transform_2d(const godot::Node *node, const Transform2D &transform) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	const auto &e = amEngine->GetEntity(AM_ID(node));
+	if (!e.Valid())
+		return;
+
+	const auto &position = transform.get_origin();
+	e.SetLocation(AM_V3(position.x, position.y, 0.0f));
+
+	const auto &rotation = transform.get_rotation();
+	e.SetOrientation(SparkyStudios::Audio::Amplitude::Orientation(AM_QFromAxisAngle_RH(AM_V3(0.0f, 0.0f, 1.0f), rotation)));
+}
+
+void Amplitude::set_entity_transform_3d(const godot::Node *node, const Transform3D &transform) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	const auto &e = amEngine->GetEntity(AM_ID(node));
+	if (!e.Valid())
+		return;
+
+	const auto &position = transform.get_origin();
+	e.SetLocation(AM_V3(position.x, position.y, position.z));
+
+	Vector3 axis;
+	real_t angle;
+	transform.get_basis().get_rotation_axis_angle(axis, angle);
+	e.SetOrientation(SparkyStudios::Audio::Amplitude::Orientation(AM_QFromAxisAngle_RH(AM_V3(axis.x, axis.y, axis.z), angle)));
+}
+
+void Amplitude::add_listener(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	AM_UNUSED(amEngine->AddListener(AM_ID(node)));
+}
+
+void Amplitude::remove_listener(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	amEngine->RemoveListener(AM_ID(node));
+}
+
+SparkyStudios::Audio::Amplitude::Listener Amplitude::get_listener(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED({});
+
+	return amEngine->GetListener(AM_ID(node));
+}
+
+void Amplitude::set_listener_transform_2d(const godot::Node *node, const Transform2D &transform) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	const auto &l = amEngine->GetListener(AM_ID(node));
+	if (!l.Valid())
+		return;
+
+	const auto &position = transform.get_origin();
+	l.SetLocation(AM_V3(position.x, position.y, 0.0f));
+
+	const auto &rotation = transform.get_rotation();
+	l.SetOrientation(SparkyStudios::Audio::Amplitude::Orientation(AM_QFromAxisAngle_RH(AM_V3(0.0f, 0.0f, 1.0f), rotation)));
+}
+
+void Amplitude::set_listener_transform_3d(const godot::Node *node, const Transform3D &transform) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	const auto &l = amEngine->GetListener(AM_ID(node));
+	if (!l.Valid())
+		return;
+
+	const auto &position = transform.get_origin();
+	l.SetLocation(AM_V3(position.x, position.y, position.z));
+
+	Vector3 axis;
+	real_t angle;
+	transform.get_basis().get_rotation_axis_angle(axis, angle);
+	l.SetOrientation(SparkyStudios::Audio::Amplitude::Orientation(AM_QFromAxisAngle_RH(AM_V3(axis.x, axis.y, axis.z), angle)));
+}
+
+void Amplitude::set_default_listener(const godot::Node *node) {
+	RETURN_IF_NOT_INITIALIZED_VOID;
+
+	if (node == nullptr) {
+		amEngine->SetDefaultListener(nullptr);
+	} else {
+		amEngine->SetDefaultListener(AM_ID(node));
+	}
+}
+
+EventCanceler Amplitude::trigger_event(const godot::Node *node, const String &event_name) {
+	RETURN_IF_NOT_INITIALIZED({});
+
+	return amEngine->Trigger(event_name.utf8().get_data(), get_entity(node));
 }
 
 bool Amplitude::is_initialized() {
@@ -113,13 +258,11 @@ void Amplitude::init() {
 #endif
 
 	amEngine->SetFileSystem(_file_system);
-	UtilityFunctions::printerr("File system set");
 
 	amEngine->StartOpenFileSystem();
 	while (!amEngine->TryFinalizeOpenFileSystem())
 		OS::get_singleton()->delay_msec(1);
 
-	UtilityFunctions::printerr("FIle system opened");
 	// Plugins
 	SparkyStudios::Audio::Amplitude::Engine::RegisterDefaultPlugins();
 

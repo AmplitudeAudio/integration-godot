@@ -15,6 +15,7 @@
 #ifndef AMPLITUDE_GDEXTENSION_H
 #define AMPLITUDE_GDEXTENSION_H
 
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/thread.hpp>
@@ -49,8 +50,23 @@ public:
 	Amplitude();
 	~Amplitude();
 
-	bool load_bank(const String &bank_path, SparkyStudios::Audio::Amplitude::AmBankID &bank_id);
-	void unload_bank(SparkyStudios::Audio::Amplitude::AmBankID bank_id);
+	bool load_bank(const String &bank_path, uint64_t &bank_id);
+	void unload_bank(uint64_t bank_id);
+
+	void add_entity(const godot::Node *node);
+	void remove_entity(const godot::Node *node);
+	SparkyStudios::Audio::Amplitude::Entity get_entity(const godot::Node *node);
+	void set_entity_transform_2d(const godot::Node *node, const Transform2D &transform);
+	void set_entity_transform_3d(const godot::Node *node, const Transform3D &transform);
+
+	void add_listener(const godot::Node *node);
+	void remove_listener(const godot::Node *node);
+	SparkyStudios::Audio::Amplitude::Listener get_listener(const godot::Node *node);
+	void set_listener_transform_2d(const godot::Node *node, const Transform2D &transform);
+	void set_listener_transform_3d(const godot::Node *node, const Transform3D &transform);
+	void set_default_listener(const godot::Node *node);
+
+	SparkyStudios::Audio::Amplitude::EventCanceler trigger_event(const godot::Node *node, const String &event_name);
 
 	bool is_initialized();
 

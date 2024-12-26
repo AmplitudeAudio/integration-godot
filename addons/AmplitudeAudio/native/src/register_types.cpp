@@ -17,6 +17,8 @@
 #include "amplitude_gdextension.h"
 
 #include "scene/amplitude_bank.h"
+#include "scene/amplitude_event.h"
+#include "scene/amplitude_listener.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/classes/engine.hpp>
@@ -38,7 +40,15 @@ void initialize_amplitude_module(ModuleInitializationLevel p_level) {
 		s_settings = memnew(AmplitudeSettings);
 
 		// TODO: Register nodes here
+		ClassDB::register_class<AmplitudeEntity2D>();
+		ClassDB::register_class<AmplitudeEntity3D>();
+
+		ClassDB::register_class<AmplitudeListener2D>();
+		ClassDB::register_class<AmplitudeListener3D>();
+
 		ClassDB::register_class<AmplitudeBank>();
+		ClassDB::register_class<AmplitudeEvent2D>();
+		ClassDB::register_class<AmplitudeEvent3D>();
 	}
 }
 

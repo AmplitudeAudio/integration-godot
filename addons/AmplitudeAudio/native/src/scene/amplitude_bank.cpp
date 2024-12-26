@@ -35,6 +35,9 @@ void AmplitudeBank::_enter_tree() {
 }
 
 void AmplitudeBank::_ready() {
+	if (Engine::get_singleton()->is_editor_hint())
+		return;
+
 	if (_load_on_ready) {
 		load_bank();
 	}
@@ -77,7 +80,7 @@ void AmplitudeBank::set_bank_path(const String &path) {
 	_bank_path = path;
 }
 
-String godot::AmplitudeBank::get_bank_path() const {
+String AmplitudeBank::get_bank_path() const {
 	return _bank_path;
 }
 
@@ -85,7 +88,7 @@ void AmplitudeBank::set_load_on_ready(bool load_on_ready) {
 	_load_on_ready = load_on_ready;
 }
 
-bool godot::AmplitudeBank::is_load_on_ready() const {
+bool AmplitudeBank::is_load_on_ready() const {
 	return _load_on_ready;
 }
 
@@ -97,6 +100,6 @@ void AmplitudeBank::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_load_on_ready", "load_on_ready"), &AmplitudeBank::set_load_on_ready);
 	ClassDB::bind_method(D_METHOD("is_load_on_ready"), &AmplitudeBank::is_load_on_ready);
 
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "bank_path", PROPERTY_HINT_NONE), "set_bank_path", "get_bank_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "bank_path", PROPERTY_HINT_FILE, "Amplitude Sound Bank (*.ambank)"), "set_bank_path", "get_bank_path");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "load_on_ready", PROPERTY_HINT_NONE), "set_load_on_ready", "is_load_on_ready");
 }
