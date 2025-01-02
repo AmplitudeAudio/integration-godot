@@ -29,6 +29,8 @@ class AmplitudeListener2D : public Node2D {
 
 private:
 	bool _is_default = false;
+	float _directivity = 1.0f;
+	float _sharpness = 1.0f;
 
 protected:
 	static void _bind_methods();
@@ -42,6 +44,12 @@ public:
 
 	void set_is_default(bool is_default);
 	bool is_default() const;
+
+	void set_directivity(float directivity);
+	float get_directivity() const;
+
+	void set_sharpness(float sharpness);
+	float get_sharpness() const;
 };
 
 class AmplitudeListener3D : public Node3D {
@@ -49,6 +57,8 @@ class AmplitudeListener3D : public Node3D {
 
 private:
 	bool _is_default = false;
+	float _directivity = 1.0f;
+	float _sharpness = 1.0f;
 
 protected:
 	static void _bind_methods();
@@ -62,6 +72,12 @@ public:
 
 	void set_is_default(bool is_default);
 	bool is_default() const;
+
+	void set_directivity(float directivity);
+	float get_directivity() const;
+
+	void set_sharpness(float sharpness);
+	float get_sharpness() const;
 };
 } //namespace godot
 

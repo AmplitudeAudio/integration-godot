@@ -76,6 +76,32 @@ bool AmplitudeListener2D::is_default() const {
 	return _is_default;
 }
 
+void AmplitudeListener2D::set_directivity(float directivity) {
+	_directivity = directivity;
+
+	Amplitude *am = Amplitude::get_singleton();
+	if (am != nullptr && !_is_editor) {
+		am->get_listener(this).SetDirectivity(_directivity, _sharpness);
+	}
+}
+
+float AmplitudeListener2D::get_directivity() const {
+	return _directivity;
+}
+
+void AmplitudeListener2D::set_sharpness(float sharpness) {
+	_sharpness = sharpness;
+
+	Amplitude *am = Amplitude::get_singleton();
+	if (am != nullptr && !_is_editor) {
+		am->get_listener(this).SetDirectivity(_directivity, _sharpness);
+	}
+}
+
+float AmplitudeListener2D::get_sharpness() const {
+	return _sharpness;
+}
+
 void AmplitudeListener3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_is_default", "is_default"), &AmplitudeListener3D::set_is_default);
 	ClassDB::bind_method(D_METHOD("is_default"), &AmplitudeListener3D::is_default);
@@ -133,4 +159,30 @@ void AmplitudeListener3D::set_is_default(bool is_default) {
 
 bool AmplitudeListener3D::is_default() const {
 	return _is_default;
+}
+
+void AmplitudeListener3D::set_directivity(float directivity) {
+	_directivity = directivity;
+
+	Amplitude *am = Amplitude::get_singleton();
+	if (am != nullptr && !_is_editor) {
+		am->get_listener(this).SetDirectivity(_directivity, _sharpness);
+	}
+}
+
+float AmplitudeListener3D::get_directivity() const {
+	return _directivity;
+}
+
+void AmplitudeListener3D::set_sharpness(float sharpness) {
+	_sharpness = sharpness;
+
+	Amplitude *am = Amplitude::get_singleton();
+	if (am != nullptr && !_is_editor) {
+		am->get_listener(this).SetDirectivity(_directivity, _sharpness);
+	}
+}
+
+float AmplitudeListener3D::get_sharpness() const {
+	return _sharpness;
 }
